@@ -1,0 +1,29 @@
+{
+  "rules": [
+    {
+      "name": "spell-unlock-sound",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "alohomora"
+      },
+      "cooldown_ms": 5000,
+      "action": {
+        "type": "text",
+        "message": "hbyg"
+      }
+    },
+    {
+      "name": "x-pose-unlock-sound",
+      "event_name": "pose_detected",
+      "match": {
+        "pose_name": "x_pose"
+      },
+      "cooldown_ms": 5000,
+      "action": {
+        "type": "beep",
+        "frequency": 900,
+        "duration_ms": 500
+      }
+    }
+  ]
+}

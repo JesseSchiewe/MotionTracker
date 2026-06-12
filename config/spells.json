@@ -1,0 +1,20 @@
+{
+  "history_size": 20,
+  "refractory_ms": 1500,
+  "patterns": [
+    {
+      "name": "alohomora",
+      "directions": ["right", "down", "left", "up"],
+      "min_distance": 0.35,
+      "min_points": 6,
+      "similarity_threshold": 0.7
+    },
+    {
+      "name": "lumos",
+      "directions": ["up", "down"],
+      "min_distance": 0.2,
+      "min_points": 4,
+      "similarity_threshold": 0.7
+    }
+  ]
+}
