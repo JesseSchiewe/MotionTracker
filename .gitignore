@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# MotionTracker: .NET bridge build artifacts
+src/bridge/**/bin/
+src/bridge/**/obj/
+src/bridge/**/Debug/
+src/bridge/**/Release/
+
+# MotionTracker: Visual Studio / MSBuild local files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+TestResults/
+
+# MotionTracker: local runtime and capture artifacts
+recordings/
+captures/
+runtime/
+*.trace.jsonl

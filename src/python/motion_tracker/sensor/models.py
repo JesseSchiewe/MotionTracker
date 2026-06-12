@@ -53,11 +53,28 @@ class Body:
     hand_state_left: str = "unknown"
     hand_state_right: str = "unknown"
 
+    @staticmethod
+    def _normalize_joints(raw_joints: Any) -> dict[str, Any]:
+        if isinstance(raw_joints, dict):
+            return raw_joints
+        if isinstance(raw_joints, list):
+            normalized: dict[str, Any] = {}
+            for item in raw_joints:
+                if not isinstance(item, dict):
+                    continue
+                key = item.get("Key") or item.get("key")
+                value = item.get("Value") or item.get("value")
+                if isinstance(key, str) and isinstance(value, dict):
+                    normalized[key] = value
+            return normalized
+        return {}
+
     @classmethod
     def from_mapping(cls, data: dict[str, Any]) -> "Body":
+        raw_joints = cls._normalize_joints(data.get("joints", {}))
         joints = {
             JointType(key): Joint.from_mapping(value)
-            for key, value in data.get("joints", {}).items()
+            for key, value in raw_joints.items()
             if key in JointType._value2member_map_
         }
         return cls(

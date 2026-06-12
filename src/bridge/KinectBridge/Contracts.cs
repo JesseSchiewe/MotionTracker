@@ -7,43 +7,43 @@ namespace KinectBridge;
 public sealed class BodyFramePacket
 {
     [DataMember(Name = "frame_index")]
-    public int FrameIndex { get; init; }
+    public int FrameIndex { get; set; }
 
     [DataMember(Name = "timestamp_ms")]
-    public long TimestampMs { get; init; }
+    public long TimestampMs { get; set; }
 
     [DataMember(Name = "bodies")]
-    public List<BodyPacket> Bodies { get; init; } = new();
+    public List<BodyPacket> Bodies { get; set; } = new();
 }
 
 [DataContract]
 public sealed class BodyPacket
 {
     [DataMember(Name = "tracking_id")]
-    public ulong TrackingId { get; init; }
+    public ulong TrackingId { get; set; }
 
     [DataMember(Name = "hand_state_left")]
-    public string HandStateLeft { get; init; } = "unknown";
+    public string HandStateLeft { get; set; } = "unknown";
 
     [DataMember(Name = "hand_state_right")]
-    public string HandStateRight { get; init; } = "unknown";
+    public string HandStateRight { get; set; } = "unknown";
 
     [DataMember(Name = "joints")]
-    public Dictionary<string, JointPacket> Joints { get; init; } = new();
+    public Dictionary<string, JointPacket> Joints { get; set; } = new();
 }
 
 [DataContract]
 public sealed class JointPacket
 {
     [DataMember(Name = "x")]
-    public float X { get; init; }
+    public float X { get; set; }
 
     [DataMember(Name = "y")]
-    public float Y { get; init; }
+    public float Y { get; set; }
 
     [DataMember(Name = "z")]
-    public float Z { get; init; }
+    public float Z { get; set; }
 
     [DataMember(Name = "tracked")]
-    public bool Tracked { get; init; }
+    public bool Tracked { get; set; }
 }

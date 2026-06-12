@@ -13,6 +13,80 @@
       }
     },
     {
+      "name": "spell-lumos",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "lumos"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "beep",
+        "frequency": 1300,
+        "duration_ms": 250
+      }
+    },
+    {
+      "name": "spell-nox",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "nox"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "beep",
+        "frequency": 700,
+        "duration_ms": 250
+      }
+    },
+    {
+      "name": "spell-accio",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "accio"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "text",
+        "message": "accio detected"
+      }
+    },
+    {
+      "name": "spell-expelliarmus",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "expelliarmus"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "text",
+        "message": "expelliarmus detected"
+      }
+    },
+    {
+      "name": "spell-incendio",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "incendio"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "text",
+        "message": "incendio detected"
+      }
+    },
+    {
+      "name": "spell-reparo",
+      "event_name": "spell_detected",
+      "match": {
+        "spell_name": "reparo"
+      },
+      "cooldown_ms": 3000,
+      "action": {
+        "type": "text",
+        "message": "reparo detected"
+      }
+    },
+    {
       "name": "x-pose-unlock-sound",
       "event_name": "pose_detected",
       "match": {
