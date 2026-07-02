@@ -20,14 +20,25 @@ class FrameDetector(Protocol):
         ...
 
 
+class EventSink(Protocol):
+    def publish(self, event: MotionEvent) -> None:
+        ...
+
+
 def load_json(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 class MotionTrackerApp:
-    def __init__(self, detectors: Iterable[FrameDetector], rule_engine: RuleEngine) -> None:
+    def __init__(
+        self,
+        detectors: Iterable[FrameDetector],
+        rule_engine: RuleEngine,
+        event_sink: EventSink | None = None,
+    ) -> None:
         self.detectors = list(detectors)
         self.rule_engine = rule_engine
+        self.event_sink = event_sink
 
     def process_frame(self, frame: BodyFrame) -> list[MotionEvent]:
         events: list[MotionEvent] = []
@@ -35,6 +46,8 @@ class MotionTrackerApp:
             detector_events = detector.process_frame(frame)
             events.extend(detector_events)
             for event in detector_events:
+                if self.event_sink is not None:
+                    self.event_sink.publish(event)
                 self.rule_engine.handle(event)
         return events
 

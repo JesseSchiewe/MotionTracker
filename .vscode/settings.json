@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "isort.importStrategy": "fromEnvironment",
+  "isort.interpreter": [
+    "${workspaceFolder}/.venv/Scripts/python.exe"
+  ]
+}

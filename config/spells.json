@@ -5,11 +5,11 @@
     {
       "name": "accio",
       "directions": ["up_left", "down_left"],
-      "min_distance": 0.3,
+      "min_distance": 0.27,
       "min_points": 7,
       "similarity_threshold": 0.8,
-      "min_span_x": 0.17,
-      "min_span_y": 0.17
+      "min_span_x": 0.14,
+      "min_span_y": 0.14
     },
     {
       "name": "incendio",
@@ -55,6 +55,15 @@
       "similarity_threshold": 0.45,
       "min_span_x": 0.12,
       "min_span_y": 0.12
+    },
+    {
+      "name": "expelliarmus",
+      "directions": ["right", "down"],
+      "min_distance": 0.3,
+      "min_points": 20,
+      "similarity_threshold": 0.95,
+      "min_span_x": 0.13,
+      "min_span_y": 0.13
     }
   ]
 }

@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from motion_tracker.app import MotionTrackerApp, build_detectors, build_rule_engine
+from motion_tracker.outputs.webhook import WebhookEventSink
 from motion_tracker.sensor.bridge_client import BridgeBodyFrameSource
 
 
@@ -19,6 +20,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--spells", type=Path, default=Path("config/spells.json"), help="Spell detector config path")
     parser.add_argument("--poses", type=Path, default=Path("config/poses.json"), help="Pose detector config path")
     parser.add_argument("--rules", type=Path, default=Path("config/rules.json"), help="Rule config path")
+    parser.add_argument(
+        "--event-webhook-url",
+        default=None,
+        help="Optional HTTP endpoint to receive every detected motion event as JSON",
+    )
+    parser.add_argument(
+        "--event-webhook-timeout-ms",
+        type=int,
+        default=500,
+        help="Webhook request timeout in milliseconds",
+    )
     return parser
 
 
@@ -26,9 +38,17 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
+    event_sink = None
+    if args.event_webhook_url:
+        event_sink = WebhookEventSink(
+            url=args.event_webhook_url,
+            timeout_seconds=max(args.event_webhook_timeout_ms, 1) / 1000.0,
+        )
+
     app = MotionTrackerApp(
         detectors=build_detectors(args.spells, args.poses),
         rule_engine=build_rule_engine(args.rules),
+        event_sink=event_sink,
     )
 
     if args.replay is not None:

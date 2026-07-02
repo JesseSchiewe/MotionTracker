@@ -73,6 +73,44 @@ python -m motion_tracker.main --live
 
 Note: `--live` is explicit and is not the default mode.
 
+### 3b) Forward detected events to another local app
+
+To send every detected spell/pose event to an HTTP endpoint:
+
+```powershell
+$env:PYTHONPATH = "src/python"
+python -m motion_tracker.main --live --event-webhook-url http://127.0.0.1:5000/motion-events
+```
+
+JSON payload sent per event:
+
+```json
+{
+	"event_name": "spell_detected",
+	"timestamp_ms": 1718271200123,
+	"payload": {
+		"spell_name": "accio",
+		"tracking_id": "1234"
+	}
+}
+```
+
+For pose events, `payload` contains:
+
+```json
+{
+	"pose_name": "x_pose",
+	"tracking_ids": ["1234"],
+	"held_ms": 1028
+}
+```
+
+If your receiver runs in Docker on the same machine:
+
+- Publish the container port to host port 5000 (for example `-p 5000:5000`).
+- Bind your server to `0.0.0.0` inside the container.
+- Expose a POST route (for example `/motion-events`) that accepts JSON.
+
 ### 4) Run with recorded replay data
 
 ```powershell
