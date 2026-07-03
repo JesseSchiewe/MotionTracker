@@ -1,6 +1,8 @@
 {
   "history_size": 20,
   "refractory_ms": 1500,
+  "active_caster_mode": "nearest",
+  "active_caster_lost_timeout_ms": 1200,
   "patterns": [
     {
       "name": "accio",

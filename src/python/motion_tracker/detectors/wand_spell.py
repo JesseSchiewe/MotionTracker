@@ -46,21 +46,33 @@ class WandSpellDetector:
         active_hand: JointType = JointType.HAND_RIGHT,
         refractory_ms: int = 1500,
         min_step: float = 0.03,
+        active_caster_mode: str = "all",
+        active_caster_lost_timeout_ms: int = 1200,
     ) -> None:
         self.patterns = list(patterns)
         self.history_size = history_size
         self.active_hand = active_hand
         self.refractory_ms = refractory_ms
         self.min_step = min_step
+        mode = active_caster_mode.strip().lower()
+        if mode not in {"all", "nearest"}:
+            raise ValueError("active_caster_mode must be 'all' or 'nearest'")
+        self.active_caster_mode = mode
+        self.active_caster_lost_timeout_ms = max(active_caster_lost_timeout_ms, 0)
         self._history: dict[int, deque[Joint]] = defaultdict(lambda: deque(maxlen=self.history_size))
         self._last_emit_ms: dict[int, int] = defaultdict(lambda: -10_000_000)
+        self._active_tracking_id: int | None = None
+        self._active_seen_ms: int = -10_000_000
 
     def process_frame(self, frame: BodyFrame) -> list[MotionEvent]:
         events: list[MotionEvent] = []
         seen_ids: set[int] = set()
+        eligible_body_ids = self._eligible_body_ids(frame)
 
         for body in frame.bodies:
             seen_ids.add(body.tracking_id)
+            if body.tracking_id not in eligible_body_ids:
+                continue
             hand = body.get_joint(self.active_hand)
             if hand is None or not hand.tracked:
                 self._history.pop(body.tracking_id, None)
@@ -91,6 +103,43 @@ class WandSpellDetector:
         for tracking_id in stale_ids:
             self._history.pop(tracking_id, None)
         return events
+
+    def _eligible_body_ids(self, frame: BodyFrame) -> set[int]:
+        if self.active_caster_mode == "all":
+            return {body.tracking_id for body in frame.bodies}
+
+        active_body = self._resolve_active_body(frame)
+        if active_body is None:
+            return set()
+        return {active_body.tracking_id}
+
+    def _resolve_active_body(self, frame: BodyFrame):
+        tracked_bodies = []
+        for body in frame.bodies:
+            hand = body.get_joint(self.active_hand)
+            if hand is None or not hand.tracked:
+                continue
+            tracked_bodies.append((body, hand))
+
+        if not tracked_bodies:
+            if frame.timestamp_ms - self._active_seen_ms > self.active_caster_lost_timeout_ms:
+                self._active_tracking_id = None
+            return None
+
+        if self._active_tracking_id is not None:
+            for body, _ in tracked_bodies:
+                if body.tracking_id == self._active_tracking_id:
+                    self._active_seen_ms = frame.timestamp_ms
+                    return body
+
+        body, _ = min(tracked_bodies, key=lambda item: item[1].z)
+        self._active_tracking_id = body.tracking_id
+        self._active_seen_ms = frame.timestamp_ms
+        self._history = defaultdict(
+            lambda: deque(maxlen=self.history_size),
+            {body.tracking_id: self._history.get(body.tracking_id, deque(maxlen=self.history_size))},
+        )
+        return body
 
     def _match_spell(self, history: list[Joint]) -> SpellPattern | None:
         if len(history) < 2:

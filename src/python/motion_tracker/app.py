@@ -66,6 +66,8 @@ def build_detectors(spell_config_path: str | Path, pose_config_path: str | Path)
         patterns=spell_patterns,
         history_size=int(spell_config.get("history_size", 20)),
         refractory_ms=int(spell_config.get("refractory_ms", 1500)),
+        active_caster_mode=str(spell_config.get("active_caster_mode", "all")),
+        active_caster_lost_timeout_ms=int(spell_config.get("active_caster_lost_timeout_ms", 1200)),
     )
     pose_detector = XPoseDetector(XPoseConfig.from_mapping(pose_config))
     return [wand_detector, pose_detector]

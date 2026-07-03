@@ -167,6 +167,8 @@ Spells are defined in [`config/spells.json`](config/spells.json).
 |---|---|
 | `history_size` | Number of Kinect frames of hand position kept in the rolling window. At 30 FPS, `20` = ~0.67 seconds of motion. |
 | `refractory_ms` | Minimum milliseconds before the same person can trigger any spell again. Prevents a gesture firing twice. |
+| `active_caster_mode` | Which bodies are evaluated for spells. `all` checks every tracked person. `nearest` only checks the closest tracked wand hand (recommended in crowded scenes). |
+| `active_caster_lost_timeout_ms` | When using `nearest`, how long to keep the current active caster if hand tracking drops out before selecting another person. |
 
 ### Per-pattern properties
 
