@@ -1,5 +1,5 @@
 {
-  "history_size": 20,
+  "history_size": 40,
   "refractory_ms": 1500,
   "active_caster_mode": "nearest",
   "active_caster_lost_timeout_ms": 1200,
@@ -7,33 +7,37 @@
     {
       "name": "accio",
       "directions": ["up_left", "down_left"],
+      "diagonal_mode": "strict",
       "min_distance": 0.27,
-      "min_points": 7,
-      "similarity_threshold": 0.8,
+      "min_points": 14,
+      "similarity_threshold": 0.92,
       "min_span_x": 0.14,
       "min_span_y": 0.14
     },
     {
       "name": "incendio",
       "directions": ["up_right", "down_right", "left"],
+      "diagonal_mode": "strict",
       "min_distance": 0.3,
-      "min_points": 12,
-      "similarity_threshold": 0.65,
-      "min_span_x": 0.1,
+      "min_points": 14,
+      "similarity_threshold": 0.6,
+      "min_span_x": 0.12,
       "min_span_y": 0.12
     },
     {
       "name": "revelio",
-      "directions": ["up", "right", "down", "down_right"],
+      "directions": ["up", "right", "down_left", "down_right"],
+      "diagonal_mode": "expanded",
       "min_distance": 0.3,
-      "min_points": 18,
-      "similarity_threshold": 0.60,
+      "min_points": 14,
+      "similarity_threshold": 0.5,
       "min_span_x": 0.11,
       "min_span_y": 0.12
     },
     {
       "name": "reducio",
       "directions": ["up_left", "up_right"],
+      "diagonal_mode": "strict",
       "min_distance": 0.25,
       "min_points": 8,
       "similarity_threshold": 0.75,
@@ -43,15 +47,17 @@
     {
       "name": "stupefy",
       "directions": ["down_left", "right", "down_left"],
+      "diagonal_mode": "strict",
       "min_distance": 0.2,
       "min_points": 8,
-      "similarity_threshold": 0.8,
+      "similarity_threshold": 0.75,
       "min_span_x": 0.14,
       "min_span_y": 0.14
     },
     {
       "name": "expecto patronum",
-      "directions": ["down_left", "up_left", "up_right", "down_right", "down_left"],
+      "directions": ["down_left", "up_left", "right", "down_right", "down_left"],
+      "diagonal_mode": "expanded",
       "min_distance": 0.22,
       "min_points": 15,
       "similarity_threshold": 0.45,
@@ -62,10 +68,10 @@
       "name": "expelliarmus",
       "directions": ["right", "down"],
       "min_distance": 0.3,
-      "min_points": 20,
-      "similarity_threshold": 0.95,
-      "min_span_x": 0.13,
-      "min_span_y": 0.13
+      "min_points": 33,
+      "similarity_threshold": 1.0,
+      "min_span_x": 0.15,
+      "min_span_y": 0.15
     }
   ]
 }

@@ -15,6 +15,7 @@ from motion_tracker.utils.geometry import distance_3d
 class SpellPattern:
     name: str
     directions: list[str]
+    diagonal_mode: str = "expanded"
     min_distance: float = 0.3
     min_points: int = 6
     similarity_threshold: float = 0.72
@@ -25,9 +26,13 @@ class SpellPattern:
 
     @classmethod
     def from_mapping(cls, data: dict[str, object]) -> "SpellPattern":
+        diagonal_mode = str(data.get("diagonal_mode", "expanded")).strip().lower()
+        if diagonal_mode not in {"expanded", "strict"}:
+            raise ValueError("diagonal_mode must be 'expanded' or 'strict'")
         return cls(
             name=str(data["name"]),
             directions=[str(item) for item in data.get("directions", [])],
+            diagonal_mode=diagonal_mode,
             min_distance=float(data.get("min_distance", 0.3)),
             min_points=int(data.get("min_points", 6)),
             similarity_threshold=float(data.get("similarity_threshold", 0.72)),
@@ -166,18 +171,26 @@ class WandSpellDetector:
             if pattern.max_span_y is not None and span_y > pattern.max_span_y:
                 continue
 
-            score = self._direction_score(pattern.directions, directions)
+            score = self._direction_score(
+                pattern.directions,
+                directions,
+                diagonal_mode=pattern.diagonal_mode,
+            )
             if score >= pattern.similarity_threshold and score > best_score:
                 best_match = pattern
                 best_score = score
         return best_match
 
-    def _direction_score(self, expected: list[str], observed: list[str]) -> float:
+    def _direction_score(self, expected: list[str], observed: list[str], diagonal_mode: str = "expanded") -> float:
         if not expected:
             return 0.0
 
-        expanded_expected = self._expand_diagonal_tokens(expected)
-        expanded_observed = self._expand_diagonal_tokens(observed)
+        if diagonal_mode == "strict":
+            expanded_expected = expected
+            expanded_observed = observed
+        else:
+            expanded_expected = self._expand_diagonal_tokens(expected)
+            expanded_observed = self._expand_diagonal_tokens(observed)
         index = 0
         matched = 0
         for token in expanded_expected:

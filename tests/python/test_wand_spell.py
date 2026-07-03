@@ -92,6 +92,89 @@ class WandSpellDetectorTests(unittest.TestCase):
 
         self.assertEqual([], events)
 
+    def test_strict_diagonal_mode_requires_true_diagonal_token(self) -> None:
+        detector = WandSpellDetector(
+            patterns=[
+                SpellPattern(
+                    name="diag_spell",
+                    directions=["down_right", "left"],
+                    diagonal_mode="strict",
+                    min_distance=0.15,
+                    min_points=4,
+                    similarity_threshold=1.0,
+                    min_span_x=0.12,
+                    min_span_y=0.05,
+                )
+            ],
+            history_size=10,
+            refractory_ms=300,
+        )
+
+        # Axis-only path: down, right, left. This should not satisfy down_right in strict mode.
+        points = [
+            (0.0, 0.0),
+            (0.0, -0.12),
+            (0.12, -0.12),
+            (0.0, -0.12),
+        ]
+        events = []
+        for index, (x, y) in enumerate(points):
+            frame = BodyFrame(
+                frame_index=index,
+                timestamp_ms=index * 100,
+                bodies=[
+                    Body(
+                        tracking_id=1,
+                        joints={JointType.HAND_RIGHT: Joint(x=x, y=y, z=1.0)},
+                    )
+                ],
+            )
+            events.extend(detector.process_frame(frame))
+
+        self.assertEqual([], events)
+
+    def test_expanded_diagonal_mode_accepts_axis_subsequence(self) -> None:
+        detector = WandSpellDetector(
+            patterns=[
+                SpellPattern(
+                    name="diag_spell",
+                    directions=["down_right", "left"],
+                    diagonal_mode="expanded",
+                    min_distance=0.15,
+                    min_points=4,
+                    similarity_threshold=1.0,
+                    min_span_x=0.12,
+                    min_span_y=0.05,
+                )
+            ],
+            history_size=10,
+            refractory_ms=300,
+        )
+
+        # Same path as strict test, but expansion should allow down_right to match as down + right.
+        points = [
+            (0.0, 0.0),
+            (0.0, -0.12),
+            (0.12, -0.12),
+            (0.0, -0.12),
+        ]
+        events = []
+        for index, (x, y) in enumerate(points):
+            frame = BodyFrame(
+                frame_index=index,
+                timestamp_ms=index * 100,
+                bodies=[
+                    Body(
+                        tracking_id=1,
+                        joints={JointType.HAND_RIGHT: Joint(x=x, y=y, z=1.0)},
+                    )
+                ],
+            )
+            events.extend(detector.process_frame(frame))
+
+        self.assertEqual(1, len(events))
+        self.assertEqual("diag_spell", events[0].payload["spell_name"])
+
 
 if __name__ == "__main__":
     unittest.main()
