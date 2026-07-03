@@ -2,7 +2,7 @@
   "history_size": 24,
   "refractory_ms": 1500,
   "axis_dominance_ratio": 2.2,
-  "min_caster_distance_m": 0.9144,
+  "min_caster_distance_m": 1.2,
   "active_caster_mode": "nearest",
   "active_caster_lost_timeout_ms": 1200,
   "patterns": [
@@ -15,6 +15,17 @@
       "similarity_threshold": 0.92,
       "min_span_x": 0.14,
       "min_span_y": 0.14
+    },
+    {
+      "name": "lumos",
+      "directions": ["up_right", "down_right"],
+      "diagonal_mode": "strict",
+      "max_direction_tokens": 3,
+      "min_distance": 0.20,
+      "min_points": 8,
+      "similarity_threshold": 0.95,
+      "min_span_x": 0.1,
+      "min_span_y": 0.11
     },
     {
       "name": "incendio",
@@ -48,7 +59,7 @@
       "min_span_y": 0.11
     },
     {
-      "name": "stupefy",
+      "name": "avada kedavra",
       "directions": ["down_left", "right", "down_left"],
       "diagonal_mode": "strict",
       "min_distance": 0.2,
@@ -70,7 +81,7 @@
     {
       "name": "expelliarmus",
       "directions": ["right", "down"],
-      "max_direction_tokens": 3,
+      "max_direction_tokens": 2,
       "min_distance": 0.27,
       "min_points": 8,
       "similarity_threshold": 0.98,

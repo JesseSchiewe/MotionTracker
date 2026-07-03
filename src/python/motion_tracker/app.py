@@ -83,6 +83,7 @@ def build_rule_engine(config_path: str | Path) -> RuleEngine:
             event_name=item["event_name"],
             action=item["action"],
             cooldown_ms=int(item.get("cooldown_ms", 5000)),
+            cooldown_scope_key=(str(item["cooldown_scope_key"]) if "cooldown_scope_key" in item else None),
             match=dict(item.get("match", {})),
         )
         for item in config.get("rules", [])

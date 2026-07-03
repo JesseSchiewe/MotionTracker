@@ -19,9 +19,10 @@ class Rule:
     event_name: str
     action: dict[str, Any]
     cooldown_ms: int = 5000
+    cooldown_scope_key: str | None = None
     enabled: bool = True
     match: dict[str, Any] = field(default_factory=dict)
-    _last_trigger_ms: int = field(default=-10_000_000, init=False, repr=False)
+    _last_trigger_ms_by_scope: dict[str, int] = field(default_factory=dict, init=False, repr=False)
 
     def should_fire(self, event: MotionEvent) -> bool:
         if not self.enabled or event.name != self.event_name:
@@ -29,10 +30,20 @@ class Rule:
         for key, value in self.match.items():
             if event.payload.get(key) != value:
                 return False
-        if event.timestamp_ms - self._last_trigger_ms < self.cooldown_ms:
+        scope = self._scope_value(event)
+        last_trigger_ms = self._last_trigger_ms_by_scope.get(scope, -10_000_000)
+        if event.timestamp_ms - last_trigger_ms < self.cooldown_ms:
             return False
-        self._last_trigger_ms = event.timestamp_ms
+        self._last_trigger_ms_by_scope[scope] = event.timestamp_ms
         return True
+
+    def _scope_value(self, event: MotionEvent) -> str:
+        if not self.cooldown_scope_key:
+            return "*"
+        value = event.payload.get(self.cooldown_scope_key)
+        if value is None:
+            return "*"
+        return str(value)
 
 
 class RuleEngine:

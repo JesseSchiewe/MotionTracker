@@ -157,6 +157,34 @@ The term '.\bin\Release\net472\KinectBridge.exe' is not recognized
 
 you are likely in the wrong working directory. Either `cd src/bridge/KinectBridge` first or use the absolute executable path.
 
+## Voice spell announcements
+
+You can have MotionTracker speak the detected spell name by adding a `speech` action in [`config/rules.json`](config/rules.json):
+
+```json
+{
+	"name": "spell-voice-announce",
+	"event_name": "spell_detected",
+	"cooldown_ms": 1200,
+	"cooldown_scope_key": "spell_name",
+	"action": {
+		"type": "speech",
+		"message_template": "{spell_name}",
+		"voice_contains": "zira",
+		"rate": 165,
+		"volume": 1.0
+	}
+}
+```
+
+Notes:
+
+- `message_template` supports event payload placeholders such as `{spell_name}` and `{tracking_id}`.
+- `cooldown_scope_key` lets cooldown run per payload value (for example per spell name) instead of globally for all spell events.
+- `voice_contains` selects the first installed TTS voice whose name or ID contains that text (for example `zira`, `david`, `hazel`).
+- `rate` and `volume` are optional.
+- The project uses offline Windows SAPI speech through `pyttsx3`.
+
 ## Configuring spells
 
 Spells are defined in [`config/spells.json`](config/spells.json).
