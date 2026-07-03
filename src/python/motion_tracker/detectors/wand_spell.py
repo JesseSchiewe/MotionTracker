@@ -16,6 +16,7 @@ class SpellPattern:
     name: str
     directions: list[str]
     diagonal_mode: str = "expanded"
+    max_direction_tokens: int | None = None
     min_distance: float = 0.3
     min_points: int = 6
     similarity_threshold: float = 0.72
@@ -33,6 +34,11 @@ class SpellPattern:
             name=str(data["name"]),
             directions=[str(item) for item in data.get("directions", [])],
             diagonal_mode=diagonal_mode,
+            max_direction_tokens=(
+                int(data["max_direction_tokens"])
+                if "max_direction_tokens" in data
+                else None
+            ),
             min_distance=float(data.get("min_distance", 0.3)),
             min_points=int(data.get("min_points", 6)),
             similarity_threshold=float(data.get("similarity_threshold", 0.72)),
@@ -51,6 +57,8 @@ class WandSpellDetector:
         active_hand: JointType = JointType.HAND_RIGHT,
         refractory_ms: int = 1500,
         min_step: float = 0.03,
+        axis_dominance_ratio: float = 1.5,
+        min_caster_distance_m: float = 0.0,
         active_caster_mode: str = "all",
         active_caster_lost_timeout_ms: int = 1200,
     ) -> None:
@@ -59,6 +67,8 @@ class WandSpellDetector:
         self.active_hand = active_hand
         self.refractory_ms = refractory_ms
         self.min_step = min_step
+        self.axis_dominance_ratio = max(axis_dominance_ratio, 1.0)
+        self.min_caster_distance_m = max(min_caster_distance_m, 0.0)
         mode = active_caster_mode.strip().lower()
         if mode not in {"all", "nearest"}:
             raise ValueError("active_caster_mode must be 'all' or 'nearest'")
@@ -80,6 +90,9 @@ class WandSpellDetector:
                 continue
             hand = body.get_joint(self.active_hand)
             if hand is None or not hand.tracked:
+                self._history.pop(body.tracking_id, None)
+                continue
+            if hand.z < self.min_caster_distance_m:
                 self._history.pop(body.tracking_id, None)
                 continue
 
@@ -123,6 +136,8 @@ class WandSpellDetector:
         for body in frame.bodies:
             hand = body.get_joint(self.active_hand)
             if hand is None or not hand.tracked:
+                continue
+            if hand.z < self.min_caster_distance_m:
                 continue
             tracked_bodies.append((body, hand))
 
@@ -169,6 +184,11 @@ class WandSpellDetector:
             if pattern.max_span_x is not None and span_x > pattern.max_span_x:
                 continue
             if pattern.max_span_y is not None and span_y > pattern.max_span_y:
+                continue
+            observed_for_pattern = directions
+            if pattern.diagonal_mode != "strict":
+                observed_for_pattern = self._expand_diagonal_tokens(directions)
+            if pattern.max_direction_tokens is not None and len(observed_for_pattern) > pattern.max_direction_tokens:
                 continue
 
             score = self._direction_score(
@@ -231,9 +251,9 @@ class WandSpellDetector:
             dy = current.y - previous.y
             if abs(dx) < self.min_step and abs(dy) < self.min_step:
                 continue
-            if abs(dx) > abs(dy) * 1.5:
+            if abs(dx) > abs(dy) * self.axis_dominance_ratio:
                 token = "right" if dx > 0 else "left"
-            elif abs(dy) > abs(dx) * 1.5:
+            elif abs(dy) > abs(dx) * self.axis_dominance_ratio:
                 token = "up" if dy > 0 else "down"
             else:
                 if dx > 0 and dy > 0:

@@ -167,6 +167,8 @@ Spells are defined in [`config/spells.json`](config/spells.json).
 |---|---|
 | `history_size` | Number of Kinect frames of hand position kept in the rolling window. At 30 FPS, `20` = ~0.67 seconds of motion. |
 | `refractory_ms` | Minimum milliseconds before the same person can trigger any spell again. Prevents a gesture firing twice. |
+| `axis_dominance_ratio` | Direction quantization sensitivity. Higher values classify more strokes as diagonal (instead of forcing `up/down/left/right`). Useful when diagonal spells are hard to trigger. |
+| `min_caster_distance_m` | Minimum hand distance from camera (meters) required before any spell tracking runs. `0.9144` = 3 feet. |
 | `active_caster_mode` | Which bodies are evaluated for spells. `all` checks every tracked person. `nearest` only checks the closest tracked wand hand (recommended in crowded scenes). |
 | `active_caster_lost_timeout_ms` | When using `nearest`, how long to keep the current active caster if hand tracking drops out before selecting another person. |
 
@@ -177,6 +179,7 @@ Spells are defined in [`config/spells.json`](config/spells.json).
 | `name` | Identifier for the spell. Matched in `config/rules.json` via `"spell_name": "..."`. |
 | `directions` | Expected sequence of movement tokens the hand must trace in order. Valid tokens: `up`, `down`, `left`, `right`, `up_right`, `down_right`, `up_left`, `down_left`. Matching is in-order and tolerant — extra tokens between expected ones are allowed, and diagonals expand (e.g. `up_right` counts toward both `up` and `right`). |
 | `diagonal_mode` | *(Optional)* How diagonals are matched. `expanded` (default) lets `up_right` match as `up` + `right`. `strict` requires an actual diagonal token from quantization, which helps prevent axis-only motions from matching diagonal spells. |
+| `max_direction_tokens` | *(Optional)* Maximum number of quantized direction tokens allowed in the observed motion window for this spell. Helps prevent short spells from matching inside larger, noisy movement paths. |
 | `min_distance` | Minimum total hand path length in meters across the whole gesture. Guards against matching a technically correct sequence that was barely a twitch. `0.3` ≈ 30 cm arc. |
 | `min_points` | Minimum number of Kinect frames required in the history window before matching is attempted. Lower = faster reaction but more noise-prone. |
 | `similarity_threshold` | Fraction of expected direction tokens that must appear in order. `1.0` = all tokens must match exactly. `0.75` = 3 out of 4 is enough. |

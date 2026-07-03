@@ -66,6 +66,8 @@ def build_detectors(spell_config_path: str | Path, pose_config_path: str | Path)
         patterns=spell_patterns,
         history_size=int(spell_config.get("history_size", 20)),
         refractory_ms=int(spell_config.get("refractory_ms", 1500)),
+        axis_dominance_ratio=float(spell_config.get("axis_dominance_ratio", 1.5)),
+        min_caster_distance_m=float(spell_config.get("min_caster_distance_m", 0.0)),
         active_caster_mode=str(spell_config.get("active_caster_mode", "all")),
         active_caster_lost_timeout_ms=int(spell_config.get("active_caster_lost_timeout_ms", 1200)),
     )

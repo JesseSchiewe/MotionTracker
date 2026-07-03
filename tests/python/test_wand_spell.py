@@ -175,6 +175,82 @@ class WandSpellDetectorTests(unittest.TestCase):
         self.assertEqual(1, len(events))
         self.assertEqual("diag_spell", events[0].payload["spell_name"])
 
+    def test_min_caster_distance_ignores_close_motion(self) -> None:
+        detector = WandSpellDetector(
+            patterns=[
+                SpellPattern(
+                    name="right_sweep",
+                    directions=["right"],
+                    min_distance=0.1,
+                    min_points=3,
+                    similarity_threshold=1.0,
+                    min_span_x=0.1,
+                )
+            ],
+            history_size=6,
+            refractory_ms=200,
+            min_caster_distance_m=0.9144,
+        )
+
+        events = []
+        for index, x in enumerate([0.0, 0.1, 0.2]):
+            frame = BodyFrame(
+                frame_index=index,
+                timestamp_ms=index * 100,
+                bodies=[
+                    Body(
+                        tracking_id=1,
+                        joints={JointType.HAND_RIGHT: Joint(x=x, y=0.0, z=0.8)},
+                    )
+                ],
+            )
+            events.extend(detector.process_frame(frame))
+
+        self.assertEqual([], events)
+
+    def test_max_direction_tokens_blocks_short_pattern_inside_long_motion(self) -> None:
+        detector = WandSpellDetector(
+            patterns=[
+                SpellPattern(
+                    name="expelliarmus_like",
+                    directions=["right", "down"],
+                    max_direction_tokens=2,
+                    min_distance=0.2,
+                    min_points=6,
+                    similarity_threshold=1.0,
+                    min_span_x=0.12,
+                    min_span_y=0.12,
+                )
+            ],
+            history_size=12,
+            refractory_ms=200,
+        )
+
+        # Direction stream includes right/down but with extra turns around it.
+        points = [
+            (0.0, 0.0),
+            (0.12, 0.0),
+            (0.12, -0.12),
+            (0.0, -0.12),
+            (0.0, 0.0),
+            (0.12, 0.0),
+        ]
+        events = []
+        for index, (x, y) in enumerate(points):
+            frame = BodyFrame(
+                frame_index=index,
+                timestamp_ms=index * 100,
+                bodies=[
+                    Body(
+                        tracking_id=1,
+                        joints={JointType.HAND_RIGHT: Joint(x=x, y=y, z=1.2)},
+                    )
+                ],
+            )
+            events.extend(detector.process_frame(frame))
+
+        self.assertEqual([], events)
+
 
 if __name__ == "__main__":
     unittest.main()
