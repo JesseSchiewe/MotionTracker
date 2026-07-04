@@ -1,7 +1,7 @@
 {
-  "required_people": 1,
-  "hold_ms": 1000,
-  "min_arm_extension": 0.2,
-  "min_leg_extension": 0.15,
-  "min_hand_raise": 0.02
+  "required_people": 2,
+  "hold_ms": 500,
+  "min_arm_extension": 0.15,
+  "min_leg_extension": 0.11,
+  "min_hand_raise": 0.01
 }
